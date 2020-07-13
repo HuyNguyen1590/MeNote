@@ -46,15 +46,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
-
         noteViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(NoteViewModel.class);
         noteViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {
-                adapter.setNotes(notes);
+                adapter.submitList(notes);
             }
         });
-
         //Add dialog when click on Floating Action Button
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -116,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attachToRecyclerView(recyclerView);
 
+        //OnItemCLick to edit item
         adapter.setOnItemClickListener(new NoteAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Note note) {
@@ -123,7 +122,9 @@ public class MainActivity extends AppCompatActivity {
                 titleDialog.setText(note.getTitle());
                 descriptionDialog.setText(note.getDescription());
                 numberPickerDialog.setValue(note.getPriority());
-                builder.setTitle("Edit note")
+                AlertDialog.Builder editNoteBuilder = new AlertDialog.Builder(MainActivity.this);
+                editNoteBuilder.setTitle("Edit note")
+                        .setView(addNoteView)
                         .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -138,12 +139,17 @@ public class MainActivity extends AppCompatActivity {
                                 noteViewModel.update(noteEdited);
                                 Toast.makeText(MainActivity.this, "Updated", Toast.LENGTH_SHORT).show();
                             }
-                        });
-                AlertDialog editDialog = builder.create();
-                if (addNoteView.getParent()!=null){
-                    ((ViewGroup)addNoteView.getParent()).removeView(addNoteView);
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog editDialog = editNoteBuilder.create();
+                if (addNoteView.getParent() != null) {
+                    ((ViewGroup) addNoteView.getParent()).removeView(addNoteView);
                 }
-                    editDialog.show();
+                editDialog.show();
             }
         });
     }
