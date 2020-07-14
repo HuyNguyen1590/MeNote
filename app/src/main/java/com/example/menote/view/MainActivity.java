@@ -3,6 +3,7 @@ package com.example.menote.view;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Application;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +31,7 @@ import com.example.menote.model.roomdatabase.NoteDatabase;
 import com.example.menote.viewmodel.NoteViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,6 +45,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Search Bar
+        SearchView searchView = findViewById(R.id.search_bar);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.submitList(filter(noteViewModel,newText));
+                return false;
+            }
+        });
+        //RecyclerView
         RecyclerView recyclerView = findViewById(R.id.list_notes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
@@ -187,5 +205,19 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    private List<Note> filter(NoteViewModel viewModel, String keyWords) {
+        List<Note> temp = viewModel.getAllNotes().getValue();
+        List<Note> notes = new ArrayList<>();
+        if (keyWords.trim().isEmpty()) {
+            return temp;
+        }
+        for (Note note : temp) {
+            if (note.getTitle().toLowerCase().contains(keyWords.toLowerCase())) {
+                notes.add(note);
+            }
+        }
+
+        return notes;
     }
 }

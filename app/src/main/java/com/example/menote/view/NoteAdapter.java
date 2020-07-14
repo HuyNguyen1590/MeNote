@@ -1,5 +1,6 @@
 package com.example.menote.view;
 
+import android.app.Application;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,17 +13,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.menote.R;
 import com.example.menote.model.roomdatabase.Note;
+import com.example.menote.viewmodel.NoteViewModel;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-public class NoteAdapter extends ListAdapter<Note,NoteAdapter.NoteViewHolder> {
+public class NoteAdapter extends ListAdapter<Note, NoteAdapter.NoteViewHolder> {
 
     private OnItemClickListener onItemClickListener;
 
     public NoteAdapter() {
         super(DIFF_CALLBACK);
     }
+
     private static final DiffUtil.ItemCallback<Note> DIFF_CALLBACK = new DiffUtil.ItemCallback<Note>() {
         @Override
         public boolean areItemsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
@@ -36,6 +41,7 @@ public class NoteAdapter extends ListAdapter<Note,NoteAdapter.NoteViewHolder> {
                     oldItem.getPriority() == newItem.getPriority();
         }
     };
+
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
